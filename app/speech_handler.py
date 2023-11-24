@@ -31,7 +31,7 @@ def text_to_speech(input_text, output_file_path):
         print(f"Error in text_to_speech: {e}")
         return None
 
-def speech_to_text(audio_url, retry_count=3, delay=1, file_path="temp_audio_file.wav"):
+def speech_to_text(audio_url, retry_count=3, delay=0, file_path="temp_audio_file.wav"):
     try:
         # Twilio credentials
         TWILIO_ACCOUNT_SID = 'ACac00b5a7490fe4cb8d755138ca02c538'

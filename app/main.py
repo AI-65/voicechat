@@ -12,12 +12,11 @@ app = create_app()
 @app.route('/voice', methods=['POST'])
 def voice():
 
-    hi = "hi"
-    response_text = generate_chatbot_response(hi)
+    
     response = VoiceResponse()
 
     # Instruct Twilio to record the caller's message
-    response.say(response_text)
+    response.say("What do you want?")
     response.record(maxLength="8", action="/handle-recording")
 
     return str(response)
@@ -29,17 +28,11 @@ def handle_recording():
 
     # Convert the recording to text
     transcript = speech_to_text(recording_url)
-
-
     print("Transcription:", transcript)  # Debug print
     print("Type of Transcription:", type(transcript))  # Print the data type of transcript
 
-
     # Generate AI response
     ai_response = generate_chatbot_response(transcript)
-
-
-    
     print("AI Response:", ai_response)  # Debug print
 
     # Convert AI text response to speech and get the URL to the audio file
@@ -47,14 +40,20 @@ def handle_recording():
     if not ai_speech_url:
         print("Failed to convert text to speech.")
         return "Error in text-to-speech conversion", 500
-
     print("AI Speech URL:", ai_speech_url)  # Debug print
 
-    # Create Twilio VoiceResponse to play the audio
+    # Create Twilio VoiceResponse to play the audio and then record the next message
     response = VoiceResponse()
-    response.play(ai_speech_url)  # Instruct Twilio to play this audio file
+    if ai_speech_url:
+        response.play(ai_speech_url)  # Play AI response
+    else:
+        response.say("Sorry, I could not process your request.")  # Fallback in case of error
+
+    # Instruct Twilio to record the user's next message
+    response.record(maxLength="8", action="/handle-recording")
 
     return str(response), 200, {'Content-Type': 'text/xml'}
+
 
 
 
